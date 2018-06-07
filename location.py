@@ -44,6 +44,7 @@ def is_suitable_file(file_name):
         return False
 
 
+
 def get_drives():
     drives = win32api.GetLogicalDriveStrings().split('\000')[:-1]
     return drives
@@ -67,6 +68,7 @@ def get_tree(path):
             except StopIteration:
                pass 
     return tree
+
 
 
 def get_dirs():
