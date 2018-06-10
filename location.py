@@ -88,8 +88,9 @@ def get_dirs():
 # print is_readonly_file(r'C:\Users\shaked\Desktop\hi')
 # print is_suitable_file(r'C:\Users\shaked\Desktop\hi')
 # a = get_tree('C:\\')
-a = get_dirs()
-print a
+#   a = get_dirs()
+#   print 'a'
+# print a
 # next(os.walk(r'C:\ProgramData\Avg\Antivirus\SecureLine'))
 
 
