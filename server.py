@@ -2,6 +2,7 @@ from socket import socket
 from select import select
 import pickle
 from Crypto.PublicKey import RSA
+from threading import Thread
 
 
 class Server(object):
@@ -79,46 +80,68 @@ class Server(object):
                 #  expectation.append((soc, a)) #a is length
 
     # add file name to the keys file
-    def add_key(self,ip,key,file_name = 'keys.txt'):
+    # {ip: {file_name: key}}
+    def add_key(self,ip,key,file_name):
         try:
-            read_file = open('keys.txt','rb')
-            write_file = open('keys.txt','wb')
-            keys = pickle.load(read_file)
-            keys[ip] = key
-            pickle.dump(keys, write_file)
+            read_file = open('keys.eio', 'rb')
+            write_file = open('keys.eio', 'wb')
+            ips = pickle.load(read_file)
+            ips[ip] = {}
+            ips[ip][file_name] = key
+            pickle.dump(ips, write_file)
             read_file.close()
             write_file.close()
 
         # if the file dosen't exist
         except IOError:
-            write_file = open('keys.txt','wb')
-            keys = {}
-            keys[ip] = key
-            pickle.dump(keys, write_file)
+            write_file = open('keys.eio', 'wb')
+            ips = {}
+            ips[ip] = {}
+            ips[ip][file_name] = key
+            pickle.dump(ips, write_file)
             write_file.close()
 
-    #
     def encrypt(self, ip, file_name):
         # generate key
         key = RSA.generate(2048)
         # save the key in a file
-        self.add_key(ip, key)
+        self.add_key(ip, key, file_name)
         # send the command
-        self.socket_by_ip(ip).send('encrypt ' + key.publickey().exportKey() + ' '+file_name)
+        self.socket_by_ip(ip).send('encrypt ' + file_name + ' '+ key.publickey().exportKey())
+
+    def find_key(self, ip, file_name):
+        read_file = open('keys.eio', 'rb')
+        write_file = open('keys.eio', 'wb')
+        ips = pickle.load(read_file)
+        key = ips[ip][file_name]
+        del ips[ip][file_name]
+        pickle.dump(ips, write_file)
+
+        read_file.close()
+        write_file.close()
+
+        return key
+
+
 
     def decrypt(self, ip, file_name):
-        #find the key
-        pass
+        # find the key and delete
+        key = self.find_key(ip, file_name)
+        # send the key
+        self.socket_by_ip(ip).send('decrypt ' + file_name + ' ' + key.exportKey())
 
     def run(self):
         while 'Encrypt.io':
             self.manage_clients()
 
+    def run_thread(self):
+        t = Thread(target=self.run)
+        t.start()
 
 
 
-s = Server()
-s.run()
+# s = Server()
+# s.run()
 
 
 
