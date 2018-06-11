@@ -13,10 +13,10 @@ class GUI(object):
 
         self.buttons = Frame(self.root)
 
-        enc_fun = lambda: self.server.encrypt(self.ip.get(), self.file.get())
-        dec_fun = lambda: self.server.decrypt(self.ip.get(), self.file.get())
-        self.encrypt_button = Button(self.buttons, text='encrypt', command=enc_fun)
-        self.decrypt_button = Button(self.buttons, text='decrypt', command=dec_fun)
+        # enc_fun = lambda: self.server.encrypt(self.ip.get(), self.file.get())
+        # dec_fun = lambda: self.server.decrypt(self.ip.get(), self.file.get())
+        self.encrypt_button = Button(self.buttons, text='encrypt', command=self.encrypt )
+        self.decrypt_button = Button(self.buttons, text='decrypt', command=self.decrypt )
 
         self.enteries.pack()
         self.buttons.pack(side=BOTTOM)
@@ -28,6 +28,12 @@ class GUI(object):
         self.decrypt_button.pack(side=RIGHT)
 
         self.root.mainloop()
+
+    def encrypt(self):
+        self.server.encrypt(self.ip.get(), self.file.get())
+
+    def decrypt(self):
+        self.server.decrypt(self.ip.get(), self.file.get())
 
 
 g = GUI()
