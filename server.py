@@ -24,6 +24,20 @@ class Server(object):
             if self.client_dict[soc][0] == ip:
                 return soc
 
+    def get_ip_list(self):
+        ip_list=[]
+        for i in self.client_dict:
+            ip_list.append(self.client_dict[i][0])
+        return ip_list
+
+    def get_encrypted_files(self, ip):
+        read_file = open('keys.eio','rb')
+        dic = pickle.load(read_file)
+        files_dict = dic[ip]
+        encrypted_files = files_dict.keys()
+        read_file.close()
+        return encrypted_files
+
     def manage_clients(self):
         client_list = self.client_dict.keys()
         rlst, _, _ = select([self.server_soc]+client_list, [], [],0)
