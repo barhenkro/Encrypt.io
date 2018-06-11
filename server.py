@@ -26,7 +26,7 @@ class Server(object):
 
     def manage_clients(self):
         client_list = self.client_dict.keys()
-        rlst, _, _ = select([self.server_soc]+client_list, [], [])
+        rlst, _, _ = select([self.server_soc]+client_list, [], [],0)
         for soc in rlst:
             # if there is a new client waiting to connect
             # the tree for every new client initialized as empty list
@@ -84,10 +84,13 @@ class Server(object):
     def add_key(self,ip,key,file_name):
         try:
             read_file = open('keys.eio', 'rb')
-            write_file = open('keys.eio', 'wb')
             ips = pickle.load(read_file)
-            ips[ip] = {}
+            if ip not in ips.keys():
+                ips[ip] = {}
             ips[ip][file_name] = key
+            read_file.close()
+
+            write_file = open('keys.eio', 'wb')
             pickle.dump(ips, write_file)
             read_file.close()
             write_file.close()
@@ -111,13 +114,13 @@ class Server(object):
 
     def find_key(self, ip, file_name):
         read_file = open('keys.eio', 'rb')
-        write_file = open('keys.eio', 'wb')
         ips = pickle.load(read_file)
         key = ips[ip][file_name]
         del ips[ip][file_name]
-        pickle.dump(ips, write_file)
-
         read_file.close()
+
+        write_file = open('keys.eio', 'wb')
+        pickle.dump(ips, write_file)
         write_file.close()
 
         return key
@@ -127,12 +130,20 @@ class Server(object):
     def decrypt(self, ip, file_name):
         # find the key and delete
         key = self.find_key(ip, file_name)
+        print 'key', key.exportKey()
         # send the key
         self.socket_by_ip(ip).send('decrypt ' + file_name + ' ' + key.exportKey())
 
     def run(self):
+        self.test = 'a'
         while 'Encrypt.io':
             self.manage_clients()
+            # test
+            if self.test == 'e':
+                self.encrypt('127.0.0.1',r'C:\Users\barhen\Desktop\normal.txt')
+            elif self.test == 'd':
+                self.decrypt('127.0.0.1',r'C:\Users\barhen\Desktop\normal.txt')
+
 
     def run_thread(self):
         t = Thread(target=self.run)
