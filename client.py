@@ -15,7 +15,7 @@ class Client(object):
         self.client_soc.send(data)
 
     def receive(self):
-        return self.client_soc.recv(1024)
+        return self.client_soc.recv(2048)
 
     def update_dirs(self):
         self.dirs = location.get_dirs()
@@ -48,6 +48,7 @@ class Client(object):
 
     # decrypts file on the computer by his name and a given key
     def decrypt(self, exported_key, file_name):
+        print "ex key", exported_key
         if os.path.exists(file_name):
             cryptography.decrypt(exported_key, file_name)
             print "decrypted", file_name, 'with', exported_key
